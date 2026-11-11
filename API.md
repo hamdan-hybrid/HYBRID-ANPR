@@ -86,15 +86,18 @@ ketik manual.
 ## Pemasangan (Ubuntu 24.04+)
 
 ```bash
-tar xzf hybrid-anpr-<versi>-ubuntu24.04-x86_64.tar.gz
-cd hybrid-anpr-<versi>
-sudo ./install.sh
+sudo apt-get install -y git curl
+sudo git clone --depth 1 https://github.com/hamdan-hybrid/HYBRID-ANPR.git /var/www/HYBRID-ANPR
+cd /var/www/HYBRID-ANPR
+sudo bash install.sh
 ```
 
+- Perbarui: `cd /var/www/HYBRID-ANPR && sudo git pull && sudo bash install.sh` (konfigurasi & data tidak hilang).
 - Konfigurasi: `/etc/anpr/anpr.env` (port, kunci API, batas waktu), lalu `sudo systemctl restart anpr-api`.
 - Gambar kamera tidak disimpan ke disk; yang disimpan hanya zona plat per kamera (beberapa KB) di `/var/lib/anpr`.
 - Log: `journalctl -u anpr-api -f`
-- Hapus: `sudo ./uninstall.sh` (konfigurasi tidak ikut dihapus).
+- Hapus: `sudo bash uninstall.sh` (konfigurasi tidak ikut dihapus).
+- Panduan lengkap: `README.md`.
 
 ## Panel admin
 

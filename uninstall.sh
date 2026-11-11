@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Hapus Hybrid ANPR. Konfigurasi (/etc/anpr) tidak dihapus.  Pemakaian: sudo ./uninstall.sh
+# Hapus Hybrid ANPR. Konfigurasi (/etc/anpr) tidak dihapus.  Pemakaian: sudo bash uninstall.sh
 set -euo pipefail
-[ "$(id -u)" = 0 ] || { echo "Jalankan dengan sudo: sudo ./uninstall.sh"; exit 1; }
+[ "$(id -u)" = 0 ] || { echo "Jalankan dengan sudo: sudo bash uninstall.sh"; exit 1; }
 systemctl disable --now anpr-api 2>/dev/null || true
 rm -f /etc/systemd/system/anpr-api.service
 systemctl daemon-reload

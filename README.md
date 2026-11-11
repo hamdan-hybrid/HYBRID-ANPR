@@ -1,59 +1,72 @@
 # Hybrid ANPR
 
-Layanan pembaca nopol (ANPR) untuk Hybrid Parking. Aplikasi parkir mengirim IP, username, dan password kamera
-ke `POST /baca`, lalu layanan menjawab nopolnya dalam ±1 detik. Dokumentasi API ada di [API.md](API.md).
+Pembaca nopol (ANPR) untuk Hybrid Parking: aplikasi parkir mengirim IP, username, dan password kamera ke
+`POST /baca`, lalu layanan menjawab nopolnya dalam ±1 detik.
 
-## Syarat
+Instalasi cukup dengan **satu perintah: `sudo bash install.sh`**. Program dan model AI sudah ada di paket ini,
+jadi Anda **tidak perlu** memasang Python atau library apa pun sendiri.
 
-- Ubuntu 24.04 atau lebih baru, 64-bit (x86_64). Layanan memakai memori ±450–620 MB.
-- `git` dan `curl`: `sudo apt install git curl`
-- Kamera: ONVIF aktif dan jarak keyframe (GOP) ≤ 0,5 detik, mis. GOP 12 pada 25 fps.
+## Kebutuhan server
 
-## Instal
+| | |
+|---|---|
+| Sistem operasi | Ubuntu 24.04 atau lebih baru, 64-bit (x86_64) |
+| RAM | layanan memakai ±450–620 MB |
+| Disk | minimal 2 GB kosong |
+| Internet | dibutuhkan saat instalasi dan update |
+| Akses | user yang bisa menjalankan `sudo` |
+| Kamera | ONVIF aktif dan jarak keyframe (GOP) ≤ 0,5 detik, mis. GOP 12 pada 25 fps |
+
+## Instalasi
+
+**1. Unduh aplikasi**
 
 ```bash
-git clone https://github.com/hamdan-hybrid/HYBRID-ANPR.git
-cd HYBRID-ANPR
-sudo ./install.sh
+sudo apt-get install -y git curl
+sudo git clone --depth 1 https://github.com/hamdan-hybrid/HYBRID-ANPR.git /var/www/HYBRID-ANPR
 ```
 
 Pakai `git clone`, jangan Download ZIP: ZIP tidak menyimpan symlink library dengan benar. Ukuran unduhan
 ±700 MB (program + model AI).
 
-`install.sh` memasang:
+**2. Jalankan install**
 
-| Lokasi | Isi |
-|---|---|
-| `/opt/anpr` | Program dan model AI (dikunci, tidak bisa diubah) |
-| `/etc/anpr/anpr.env` | Konfigurasi: port, batas waktu, model OCR |
-| `/var/lib/anpr` | Data: akun admin, kunci API, kamera, zona plat |
-| layanan `anpr-api` | Berjalan otomatis setiap komputer dinyalakan |
+```bash
+cd /var/www/HYBRID-ANPR
+sudo bash install.sh
+```
 
-Setelah selesai, alamat layanan dan panel admin tampil di layar.
+Install memasang program ke `/opt/anpr`, konfigurasi ke `/etc/anpr/anpr.env`, data ke `/var/lib/anpr`, dan
+layanan `anpr-api` yang berjalan otomatis setiap komputer dinyalakan. Di akhir, alamat layanan dan panel admin
+tampil di layar.
 
-## Setelah instal
+**3. Buka panel admin**
 
-1. Buka panel admin `http://<ip-server>:8090/admin`. Login dengan user `admin` dan password awal dari
-   `sudo cat /var/lib/anpr/admin_password_awal.txt`, lalu ganti password di menu **Pengaturan**.
-2. Di **Pengaturan → Kunci API**, klik **Buat kunci**, lalu **Salin**.
-3. Di Hybrid Parking, buka **Data Perusahaan → Hybrid ANPR**:
-   - **Link Hybrid ANPR**: `http://<ip-server-anpr>:8090`, atau `http://localhost:8090` bila satu komputer
+- Alamat: `http://<ip-server>:8090/admin` (port bawaan 8090).
+- Login awal: user **admin**, password dari `sudo cat /var/lib/anpr/admin_password_awal.txt`. Segera ganti
+  password di menu **Pengaturan**.
+
+**4. Hubungkan ke Hybrid Parking**
+
+1. Di panel admin **Pengaturan → Kunci API**, klik **Buat kunci**, lalu **Salin**.
+2. Di Hybrid Parking, buka **Data Perusahaan → Hybrid ANPR**:
+   - **Link Hybrid ANPR**: `http://<ip-server-anpr>:8090`, atau `http://localhost:8090` bila satu server
    - **API key Hybrid ANPR**: tempel kunci tadi
    - klik **Test koneksi**, lalu **Simpan**
-4. Opsional: di panel admin menu **Status**, tambahkan kamera gate supaya sudah tersambung sejak layanan
+3. Opsional: di panel admin menu **Status**, tambahkan kamera gate supaya sudah tersambung sejak layanan
    dinyalakan, dan atur **Area plat** bila plat sering tidak terbaca.
 
 ## Perbarui ke versi baru
 
 ```bash
-cd HYBRID-ANPR
-git pull
-sudo ./install.sh
+cd /var/www/HYBRID-ANPR
+sudo git pull
+sudo bash install.sh
 ```
 
 Konfigurasi, akun admin, kunci API, kamera, dan zona plat tidak hilang.
 
-## Perintah berguna
+## Perintah harian
 
 | Keperluan | Perintah |
 |---|---|
@@ -61,12 +74,15 @@ Konfigurasi, akun admin, kunci API, kamera, dan zona plat tidak hilang.
 | Log langsung | `journalctl -u anpr-api -f` |
 | Restart (wajib setelah mengubah `/etc/anpr/anpr.env`) | `sudo systemctl restart anpr-api` |
 | Ganti port | ubah `ANPR_PORT` di `/etc/anpr/anpr.env`, lalu restart |
-| Melatih ulang OCR dari panel | sekali saja: `sudo apt install python3-venv` |
+| Melatih ulang OCR dari panel | sekali saja: `sudo apt-get install -y python3-venv` |
 
 ## Hapus
 
 ```bash
-sudo ./uninstall.sh
+cd /var/www/HYBRID-ANPR
+sudo bash uninstall.sh
 ```
 
 Konfigurasi di `/etc/anpr` dan data di `/var/lib/anpr` tidak ikut dihapus.
+
+API untuk pembuat aplikasi parkir: [API.md](API.md).

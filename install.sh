@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Pasang / perbarui Hybrid ANPR di Ubuntu 24.04+.  Pemakaian:  sudo ./install.sh
+# Pasang / perbarui Hybrid ANPR di Ubuntu 24.04+.  Pemakaian:  sudo bash install.sh
 set -euo pipefail
-[ "$(id -u)" = 0 ] || { echo "Jalankan dengan sudo: sudo ./install.sh"; exit 1; }
+[ "$(id -u)" = 0 ] || { echo "Jalankan dengan sudo: sudo bash install.sh"; exit 1; }
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
 id anpr &>/dev/null || useradd --system --home-dir /opt/anpr --shell /usr/sbin/nologin anpr
@@ -44,7 +44,7 @@ chmod 640 /etc/anpr/anpr.env /etc/anpr/kamera.json
 
 # Kunci kode program agar tidak bisa ditimpa/diedit (bahkan oleh root tanpa membuka kunci). Best-effort.
 if chattr -R +i /opt/anpr/anpr-api 2>/dev/null; then
-    echo "Program dikunci (immutable); untuk memperbarui cukup jalankan ./install.sh lagi."
+    echo "Program dikunci (immutable); untuk memperbarui: git pull lalu sudo bash install.sh lagi."
 else
     echo "Catatan: filesystem tidak mendukung kunci immutable; proteksi tetap dari kepemilikan root."
 fi

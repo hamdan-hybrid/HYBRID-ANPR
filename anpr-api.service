@@ -1,0 +1,33 @@
+[Unit]
+Description=Hybrid ANPR - pembaca nopol untuk aplikasi parkir (HTTP API + panel admin)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=anpr
+Group=anpr
+EnvironmentFile=/etc/anpr/anpr.env
+# Model AI ada di /opt/anpr/home/.cache (library model membaca $HOME/.cache), jadi tidak perlu internet.
+Environment=HOME=/opt/anpr/home
+ExecStart=/opt/anpr/anpr-api/anpr-api --host ${ANPR_HOST} --port ${ANPR_PORT} --kamera-file /etc/anpr/kamera.json --data-dir /var/lib/anpr --max-time ${ANPR_MAX_TIME} --ocr-model ${ANPR_OCR_MODEL} --kumpul-dir ${ANPR_KUMPUL_DIR} --kumpul-max-mb ${ANPR_KUMPUL_MAX_MB}
+Restart=always
+RestartSec=3
+LimitNOFILE=4096
+
+# --- Pengamanan: layanan hanya boleh menulis ke data (/var/lib/anpr), tidak ke program ---
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/anpr
+ReadWritePaths=/var/lib/anpr
+PrivateTmp=true
+ProtectControlGroups=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+RestrictSUIDSGID=true
+RemoveIPC=true
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

@@ -108,8 +108,8 @@ Buka `http://<ip-server>:<port>/admin` di browser (login). Password awal ada di
 |---|---|
 | Status | Kesehatan layanan, kamera tersambung, bacaan terakhir. Per kamera: **Area plat** dan **Reset zona**. |
 | Coba Baca | Tes satu kamera seperti aplikasi parkir, lengkap dengan contoh perintah curl. Kamera tersambung / tersimpan cukup dipilih dari daftar, tanpa password. |
-| Label | Memberi label potongan plat untuk melatih ulang. |
-| Latih & Model | Siapkan, latih (tombol), lihat hasil uji, pilih model OCR yang dipakai (tanpa restart). |
+| Data Latih | Memberi label (nopol yang benar) pada potongan plat sebagai bahan latih ulang. Simpan/Enter hanya menyimpan, tidak melatih. Kartu *Latih model baru*: latih di server ini, atau unduh data latih / unggah hasil latih. |
+| Latih & Model | Siapkan, latih (tombol), lihat hasil uji, pilih atau unggah model OCR yang dipakai (tanpa restart). Bernama *Model OCR* kalau pelatihan di server ini mati. |
 | Pengaturan | Pengumpul data nyala/mati dan batas disk, kunci API (buat, salin, matikan), ganti password admin. |
 | Dokumentasi | Panduan lengkap (isi file ini dan lebih). |
 
@@ -126,21 +126,28 @@ OCR tidak belajar sendiri dari pemakaian. Untuk menaikkan ketepatan di lokasi se
    restart. Layanan menyimpan **potongan plat saja** (±5-10 KB) + hasil bacaannya, paling banyak `ANPR_KUMPUL_MAX_MB`
    (default 500 MB). Kalau penuh, potongan lama yang **belum** diberi label dihapus otomatis; yang sudah berlabel tidak.
    Kendaraan yang sama di kamera yang sama tidak disimpan ulang dalam 60 detik.
-2. **Beri label** di panel admin (menu Label) atau `http://<ip-server>:<port>/label`: ketik nopol yang benar-benar terlihat (huruf besar tanpa spasi
+2. **Beri label** di panel admin (menu Data Latih) atau `http://<ip-server>:<port>/label`: ketik nopol yang benar-benar terlihat (huruf besar tanpa spasi
    otomatis), Enter. "Bukan plat" untuk gambar yang bukan plat/tidak terbaca, "Lewati" kalau ragu.
-3. **Latih** (disarankan di komputer pusat, bukan di client): instalasi paket mematikan pelatihan dari panel
-   (`ANPR_LATIH=0`); model hasil latih ditaruh di `models/<nama>/` kode sumber dan ikut terpasang di semua client lewat
-   build berikutnya. Kalau `ANPR_LATIH=1`: di panel admin menu *Latih & Model*, klik *Siapkan* (sekali) lalu *Latih sekarang*. Atau dari terminal di
-   komputer yang punya kode sumber (salin dulu folder data latihnya):
-   ```bash
-   .venv/bin/python latih.py siapkan                    # sekali: TensorFlow ±2.5 GB
-   .venv/bin/python latih.py latih --data /path/ke/kumpul
-   ```
+3. **Latih**, pilih salah satu (panel menu *Data Latih* → kartu *Latih model baru*):
+   - **Di server ini**: *Latih di server ini*, lalu *Siapkan* (sekali, unduh TensorFlow ±2.5 GB) dan *Latih sekarang*
+     (1-3 jam CPU). Paket memasang `ANPR_LATIH=0` (mati); tombol ini menyalakannya dari panel tanpa restart
+     (pilihan panel mengalahkan `ANPR_LATIH`), dan bisa dimatikan lagi di menu *Latih & Model*.
+   - **Di komputer lain** (lebih kuat, tanpa membebani server lokasi): *Unduh data latih (.zip)*, lalu di komputer
+     yang punya kode sumber:
+     ```bash
+     .venv/bin/python latih.py siapkan                                   # sekali: TensorFlow ±2.5 GB
+     .venv/bin/python latih.py latih --data data-latih-<host>-<waktu>.zip  # bisa beberapa --data (zip atau folder)
+     ```
+     Zip berisi potongan berlabel + model OCR yang sedang dipakai di lokasi itu, yang otomatis jadi pembanding
+     (ganti dengan `--model-sekarang`). Kalau model baru lebih baik, skrip membuat
+     `models/ocr-lokal/ocr_lokal_<waktu>.zip`: unggah di panel lokasi (*Unggah hasil latih (.zip)*).
    Skrip membagi data per nopol (kendaraan yang sama tidak ada di data latih dan uji), mencampur dataset ICVLP,
    melatih, lalu membandingkan dengan model sekarang. Model baru **hanya disimpan kalau lebih banyak benar dan tidak
    lebih banyak salah** di data uji (minimal 20 nopol berbeda di data uji, jadi butuh ±150+ nopol berlabel).
-4. **Pasang**: di panel admin klik *Pakai model ini* (muncul hanya kalau model baru lebih baik). Dari terminal: salin
-   `ocr_lokal_*.onnx` + `*_plate_config.yaml` ke `/var/lib/anpr/models/`, isi `ANPR_OCR_MODEL` lalu restart.
+4. **Pasang**: latih di server → klik *Pakai model ini* (muncul hanya kalau model baru lebih baik). Hasil unggahan →
+   klik *Pakai* di tabel Model OCR. Unggahan diperiksa dulu (harus bisa dimuat dan membaca gambar) dan disimpan di
+   `/var/lib/anpr/models/`; nama yang sudah ada ditolak. Dari terminal: salin `ocr_lokal_*.onnx` + `*_plate_config.yaml`
+   ke `/var/lib/anpr/models/`, isi `ANPR_OCR_MODEL` lalu restart.
 
 ## Keamanan
 

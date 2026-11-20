@@ -110,6 +110,7 @@ Buka `http://<ip-server>:<port>/admin` di browser (login). Password awal ada di
 | Coba Baca | Tes satu kamera seperti aplikasi parkir, lengkap dengan contoh perintah curl. Kamera tersambung / tersimpan cukup dipilih dari daftar, tanpa password. |
 | Data Latih | Memberi label (nopol yang benar) pada potongan plat sebagai bahan latih ulang. Simpan/Enter hanya menyimpan, tidak melatih. Kartu *Latih model baru*: latih di server ini, atau unduh data latih / unggah hasil latih. |
 | Latih & Model | Siapkan, latih (tombol), lihat hasil uji, pilih atau unggah model OCR yang dipakai (tanpa restart). Bernama *Model OCR* kalau pelatihan di server ini mati. |
+| Latih dari Zip | Untuk komputer yang kuat: pilih zip data latih dari lokasi lain, Siapkan, Latih sekarang, lalu *Unduh hasil latih (.zip)* untuk diunggah di panel lokasi itu. |
 | Pengaturan | Pengumpul data nyala/mati dan batas disk, kunci API (buat, salin, matikan), ganti password admin. |
 | Dokumentasi | Panduan lengkap (isi file ini dan lebih). |
 
@@ -132,8 +133,9 @@ OCR tidak belajar sendiri dari pemakaian. Untuk menaikkan ketepatan di lokasi se
    - **Di server ini**: *Latih di server ini*, lalu *Siapkan* (sekali, unduh TensorFlow ±2.5 GB) dan *Latih sekarang*
      (1-3 jam CPU). Paket memasang `ANPR_LATIH=0` (mati); tombol ini menyalakannya dari panel tanpa restart
      (pilihan panel mengalahkan `ANPR_LATIH`), dan bisa dimatikan lagi di menu *Latih & Model*.
-   - **Di komputer lain** (lebih kuat, tanpa membebani server lokasi): *Unduh data latih (.zip)*, lalu di komputer
-     yang punya kode sumber:
+   - **Di komputer lain** (lebih kuat, tanpa membebani server lokasi): *Unduh data latih (.zip)*, lalu di panel
+     Hybrid ANPR komputer itu menu **Latih dari Zip**: *Pilih file zip data latih* → *Siapkan* (sekali) → *Latih
+     sekarang* → *Unduh hasil latih (.zip)*. Atau dari terminal di komputer yang punya kode sumber:
      ```bash
      .venv/bin/python latih.py siapkan                                   # sekali: TensorFlow ±2.5 GB
      .venv/bin/python latih.py latih --data data-latih-<host>-<waktu>.zip  # bisa beberapa --data (zip atau folder)

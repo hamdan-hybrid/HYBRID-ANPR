@@ -70,8 +70,8 @@ ketik manual.
 - **Panggilan berikutnya: ±0.5–1 detik** untuk plat biasa; **maksimal 3 detik** untuk plat sulit (miring/kontras
   rendah/kecil) yang perlu menunggu 2 keyframe sepakat. Kalau tetap tidak yakin dalam batas itu → `status:false`.
   Batas ini diatur `ANPR_MAX_TIME` (1.5 = maks 3 detik). Video diterima terus tanpa di-decode (CPU ±2.5% per kamera). Saat
-  dipanggil, keyframe terakhir dan berikutnya di-decode dan dibaca. Nopol diputuskan kalau 2 keyframe terbaca
-  sama persis, dengan aturan keyakinan per huruf.
+  dipanggil, keyframe terakhir dan berikutnya di-decode dan dibaca. Nopol diputuskan kalau `ANPR_MIN_HITS` keyframe
+  (bawaan paket 3, sebelum 0.7.4: 2) terbaca sama persis, dengan aturan keyakinan per huruf.
 - Beberapa kamera (mis. 2 masuk + 2 keluar) bisa dipanggil bersamaan; tiap permintaan diproses terpisah.
   Dua permintaan bersamaan untuk kamera yang sama mendapat hasil yang sama.
 
@@ -107,7 +107,7 @@ Buka `http://<ip-server>:<port>/admin` di browser (login). Password awal ada di
 | Menu | Fungsi |
 |---|---|
 | Status | Kesehatan layanan, kamera tersambung, bacaan terakhir. Per kamera: **Area plat** dan **Reset zona**. |
-| Coba Baca | Tes satu kamera seperti aplikasi parkir, lengkap dengan contoh perintah curl. |
+| Coba Baca | Tes satu kamera seperti aplikasi parkir, lengkap dengan contoh perintah curl. Kamera tersambung / tersimpan cukup dipilih dari daftar, tanpa password. |
 | Label | Memberi label potongan plat untuk melatih ulang. |
 | Latih & Model | Siapkan, latih (tombol), lihat hasil uji, pilih model OCR yang dipakai (tanpa restart). |
 | Pengaturan | Pengumpul data nyala/mati dan batas disk, kunci API (buat, salin, matikan), ganti password admin. |
@@ -128,7 +128,9 @@ OCR tidak belajar sendiri dari pemakaian. Untuk menaikkan ketepatan di lokasi se
    Kendaraan yang sama di kamera yang sama tidak disimpan ulang dalam 60 detik.
 2. **Beri label** di panel admin (menu Label) atau `http://<ip-server>:<port>/label`: ketik nopol yang benar-benar terlihat (huruf besar tanpa spasi
    otomatis), Enter. "Bukan plat" untuk gambar yang bukan plat/tidak terbaca, "Lewati" kalau ragu.
-3. **Latih**: di panel admin menu *Latih & Model*, klik *Siapkan* (sekali) lalu *Latih sekarang*. Atau dari terminal di
+3. **Latih** (disarankan di komputer pusat, bukan di client): instalasi paket mematikan pelatihan dari panel
+   (`ANPR_LATIH=0`); model hasil latih ditaruh di `models/<nama>/` kode sumber dan ikut terpasang di semua client lewat
+   build berikutnya. Kalau `ANPR_LATIH=1`: di panel admin menu *Latih & Model*, klik *Siapkan* (sekali) lalu *Latih sekarang*. Atau dari terminal di
    komputer yang punya kode sumber (salin dulu folder data latihnya):
    ```bash
    .venv/bin/python latih.py siapkan                    # sekali: TensorFlow ±2.5 GB
